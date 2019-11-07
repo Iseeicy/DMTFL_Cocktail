@@ -2,6 +2,7 @@ from LinkIndexer import LinkIndexer
 from ApplicationSettings import ApplicationSettings
 from BandcampDownloaderHack import BandcampDownloaderHack
 from datetime import datetime
+from mutagen.mp3 import MP3
 import random
 import os
 
@@ -27,8 +28,8 @@ def load_classes():
 	BANDCAMP_DOWNLOADER = BandcampDownloaderHack(APPLICATION_SETTINGS)
 
 def display_main_options():
-	command_names = ["autorun", "indexsite", "generate", "printsettings", "exit"]
-	command_funcs = [command_autorun, command_index_site, command_generate, command_printsettings, command_exit]
+	command_names = ["autorun", "indexsite", "generate", "generatelength", "printsettings", "exit"]
+	command_funcs = [command_autorun, command_index_site, command_generate, command_generate_length, command_printsettings, command_exit]
 
 	choice = input("\nEnter a command [" + ", ".join(command_names) + "]\n")
 	found_command = False
@@ -60,22 +61,8 @@ def command_generate():
 	global LINK_INDEXER
 	global BANDCAMP_DOWNLOADER
 
-	def get_random_songs(song_count):
-		dict = LINK_INDEXER.get_site_dict()
-		keys = list(dict.keys())
-		output = []
-
-		for x in range(0, song_count):
-			album = random.choice(keys)
-			if len(dict[album]) > 0:
-				song = random.choice(dict[album])
-				output.append(song)
-			else:
-				x -= 1
-
-		return output
-
-	songs = get_random_songs(int(APPLICATION_SETTINGS.get_setting("playlistLength")))
+	
+	songs = LINK_INDEXER.get_random_songs(int(APPLICATION_SETTINGS.get_setting("playlistLength")))
 	baseURL = APPLICATION_SETTINGS.get_setting("baseURL")
 	track_destination = datetime.now().strftime('%Y-%m-%d %H %M %S') + "/"
 	print("Picked songs...")
@@ -86,6 +73,46 @@ def command_generate():
 		BANDCAMP_DOWNLOADER.download_bandcamp_track(baseURL + x, track_destination)
 
 	print("Done!")
+
+def command_generate_length():
+	global APPLICATION_SETTINGS
+	global LINK_INDEXER
+	global BANDCAMP_DOWNLOADER
+
+	def get_audio_length(mp3_path):
+		audio = MP3(mp3_path)
+		return audio.info.length
+
+	baseURL = APPLICATION_SETTINGS.get_setting("baseURL")
+	track_destination = datetime.now().strftime('%Y-%m-%d %H %M %S') + "/"
+
+	desired_length = -1
+	input_done = False
+	while(not input_done):
+		try:
+			inp = input(">Enter desired length in seconds (or type exit):\n")
+			if inp == "exit":
+				return
+			desired_length = float(inp)
+			input_done = True
+		except Exception as e:
+			print("Invalid input entered.\n")
+			pass
+		
+
+	current_length = 0
+
+	while(True):
+		song = LINK_INDEXER.get_random_song()
+		print("Downloading " + song)
+		path = BANDCAMP_DOWNLOADER.download_bandcamp_track(baseURL + song, track_destination)
+		length = get_audio_length(path[:-4])
+		current_length += length
+
+		if current_length >= desired_length:
+			print("Done!")
+			return
+
 
 def command_printsettings():
 	global APPLICATION_SETTINGS

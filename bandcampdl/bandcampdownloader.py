@@ -56,12 +56,12 @@ class BandcampDownloader:
             choice = input("Track list incomplete, some tracks may be private, download anyway? (yes/no): ").lower()
             if choice == "yes" or choice == "y":
                 print("Starting download process.")
-                self.download_album(album)
+                return self.download_album(album)
             else:
                 print("Cancelling download process.")
                 return None
         else:
-            self.download_album(album)
+            return self.download_album(album)
 
     def template_to_path(self, track: dict) -> str:
         """Create valid filepath based on template
@@ -209,7 +209,7 @@ class BandcampDownloader:
         if self.embed_art:
             os.remove(self.album_art)
 
-        return True
+        return filepath
 
     def write_id3_tags(self, filepath: str, meta: dict):
         """Write metadata to the MP3 file

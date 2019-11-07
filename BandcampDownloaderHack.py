@@ -32,4 +32,4 @@ class BandcampDownloaderHack:
 			debug, track_link)
 
 		album = bandcamp.parse(track_link, embedArt, embedLyrics, debug)
-		downloader.start(album)
+		return downloader.start(album)

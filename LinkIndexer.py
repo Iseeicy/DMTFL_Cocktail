@@ -1,6 +1,7 @@
 from ApplicationSettings import ApplicationSettings
 from bs4 import BeautifulSoup
 import requests
+import random
 import urllib.request
 import pickle
 
@@ -138,3 +139,32 @@ class LinkIndexer:
 			return True
 		else:
 			return False
+
+	def get_random_songs(self, song_count):
+		dict = self.get_site_dict()
+		keys = list(dict.keys())
+		output = []
+
+		for x in range(0, song_count):
+			album = random.choice(keys)
+			if len(dict[album]) > 0:
+				song = random.choice(dict[album])
+				output.append(song)
+			else:
+				x -= 1
+
+		return output
+
+	def get_random_song(self):
+		dict = self.get_site_dict()
+		keys = list(dict.keys())
+
+
+		for x in range(0, 900):
+			album = random.choice(keys)
+			if len(dict[album]) > 0:
+				song = random.choice(dict[album])
+				return song
+
+		print("CRITICAL ERROR: track arrays are empty?")
+		return
