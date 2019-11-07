@@ -132,7 +132,7 @@ def command_exit():
 if __name__ == '__main__':
 	print("======================================")
 	print("           -| DMTFL_RADIO |-           ")
-	print("              version 0.1              ")
+	print("              version 0.2              ")
 	print("    https://dmttapes.bandcamp.com      \n")
 	print("           Script by Iseeicy           ")
 	print("======================================")
